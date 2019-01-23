@@ -1,5 +1,5 @@
 import { actions } from './actions';
-import { get, merge } from 'lodash';
+import { get, zipObject } from 'lodash';
 export const rootKey = 'goods-issue-weekly';
 export const whitelist = [
     'params.syozok', 
@@ -27,15 +27,13 @@ export const purge = key =>
 };
 export const pickValues = state => 
 {
-    return whitelist.reduce((values, key) => merge(values, {
-        [key]: get(state, key), 
-    }), {});
+    return zipObject(whitelist, whitelist.map(key => get(state, key)));
 };
 export const saveIfChanged = (before, after) => 
 {
     for ([ key, value ] of Object.entries(after))
     {
-        if (value !== before[key])
+        if (value !== get(before, key))
         {
             const reconciler = saveReconcilers[key] || (a => a);
             save(key, reconciler(value));
